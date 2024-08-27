@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Literal as _Literal
 
 from markitup import html as _html, doc as _doc
@@ -16,12 +18,14 @@ class ReporterException(Exception):
     ):
         message_html = message_html or message
         description_html = description_html or description
+        self.summary = message + (f"\n{description}" if description else "")
 
-        super().__init__(message + (f"\n{description}" if description else ""))
+        super().__init__(self.summary)
         self.message = message
         self.description = description
         self.message_html = message_html
         self.description_html = description_html
+        self.summary_html = self.message_html + (f" {self.description_html}" if self.description_html else "")
         self._html_head = _html.elem.head(
             [
                 _html.elem.title(report_heading),
@@ -53,15 +57,15 @@ code {
     def report(self, mode: _Literal["full", "short"] = "full", md: bool = False) -> _doc.Document:
         """Generate a report for the exception."""
         detail_section_content = self._report_content(mode, md)
-        summary = self.message_html + (f" {self.description_html}" if self.description_html else "")
+        section = _doc.from_contents(
+            heading="Error Details",
+            content=detail_section_content,
+        )
         report = _doc.from_contents(
             heading=self._report_heading,
-            content={"summary": _html.elem.p(summary, align="justify")},
+            content={"summary": _html.elem.p(self.summary_html, align="justify")},
             head=self._html_head if not md else None,
-            section=_doc.from_contents(
-                heading="Error Details",
-                content=detail_section_content,
-            ) if detail_section_content else None,
+            section= {"details": section} if detail_section_content else None,
         )
         if not md:
             report.add_highlight(style="monokai-sublime", languages=["yaml", "json", "toml"])
