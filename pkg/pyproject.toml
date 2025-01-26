@@ -16,10 +16,10 @@ namespaces = true
 
 # ----------------------------------------- Project Metadata -------------------------------------
 [project]
-version = "0.0.0.dev57"
+version = "0.0.0.dev58"
 name = "ExceptionMan"
 dependencies = [
-    "MDit == 0.0.0.dev57",
+    "MDit == 0.0.0.dev58",
     "rich >= 13.5",
     "pygments",
 ]
